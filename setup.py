@@ -33,5 +33,5 @@ setup(
         'Programming Language :: Python :: 2.7',
     ),
     packages=['delivery', 'delivery.management', 'delivery.management.commands'],
-    install_requires=['markdown2', 'django>=1.5', 'choice_enum']
+    install_requires=['django<1.8']
 )
