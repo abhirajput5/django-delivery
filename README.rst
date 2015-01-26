@@ -1,2 +1,2 @@
-# django_delivery
+# django-delivery
 Basic mail messaging and delivery
