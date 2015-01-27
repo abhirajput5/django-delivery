@@ -13,7 +13,7 @@ logger = logging.getLogger('django_delivery')
 delivery_cfg = getattr(settings, 'DJANGO_DELIVERY', {
     'is_active': True,
     'lock_wait_timeout': -1,
-}
+})
 
 
 #===============================================================================
@@ -37,7 +37,7 @@ class MessageManager(models.Manager):
     def send_all(self):
         '''
         Send all available messages.
-        ''''
+        '''
         if not delivery_cfg.get('is_active', True):
             logger.debug('django_delivery inactive')
             return False
