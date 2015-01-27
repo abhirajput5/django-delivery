@@ -13,7 +13,7 @@ if sys.argv[-1] == 'publish':
 with open('README.rst') as f:
     long_description = f.read()
 
-VERSION = '0.2'
+VERSION = __import__('delivery').__version__
 
 setup(
     name='django-delivery',
