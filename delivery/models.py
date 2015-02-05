@@ -87,6 +87,8 @@ class MessageManager(models.Manager):
 #===============================================================================
 class Message(MessageBase):
     
+    objects = MessageManager()
+    
     #---------------------------------------------------------------------------
     def send(self):
         alt = bool(self.html)
