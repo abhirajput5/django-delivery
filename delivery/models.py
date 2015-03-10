@@ -10,7 +10,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 import lockfile
 
 logger = logging.getLogger('django_delivery')
-delivery_cfg = getattr(settings, 'DJANGO_DELIVERY', {
+delivery_settings = getattr(settings, 'DJANGO_DELIVERY', {
     'is_active': True,
     'lock_wait_timeout': -1,
 })
@@ -38,14 +38,14 @@ class MessageManager(models.Manager):
         '''
         Send all available messages.
         '''
-        if not delivery_cfg.get('is_active', True):
+        if not delivery_settings.get('is_active', True):
             logger.debug('django_delivery inactive')
             return False
 
         now = datetime.now()
         lock = lockfile.FileLock("send_all")
         try:
-            lock.acquire(delivery_cfg.get('lock_wait_timeout', -1))
+            lock.acquire(delivery_settings.get('lock_wait_timeout', -1))
         except lockfile.AlreadyLocked:
             logger.warn('{}: Lock already in place.'.format(now))
             return False
@@ -77,8 +77,8 @@ class MessageManager(models.Manager):
 
         if sent or errors:
             logger.info('Mailer: {} sent | {} errors ({:.3} seconds)'.format(
-                sent, 
-                deferred, 
+                sent,
+                errors,
                 time.time() - start_time
             ))
 
