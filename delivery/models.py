@@ -5,7 +5,6 @@ import socket
 from datetime import datetime
 from django.db import models
 from django.conf import settings
-from django.core.mail import send_mail as core_send_mail
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 import lockfile
 
@@ -76,7 +75,8 @@ class MessageManager(models.Manager):
             lock.release()
 
         if sent or errors:
-            logger.info('Mailer: {} sent | {} errors ({:.3} seconds)'.format(
+            logger.info('[{}] Mailer: {} sent | {} errors ({:.3} seconds)'.format(
+                datetime.utcnow(),
                 sent,
                 errors,
                 time.time() - start_time
