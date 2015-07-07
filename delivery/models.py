@@ -17,8 +17,8 @@ delivery_settings = getattr(settings, 'DJANGO_DELIVERY', {
 
 #===============================================================================
 class MessageBase(models.Model):
-    to_address = models.CharField(max_length=50)
-    from_address = models.CharField(max_length=50)
+    to_address = models.CharField(max_length=100)
+    from_address = models.CharField(max_length=100)
     subject = models.CharField(max_length=100)
     text = models.TextField()
     html = models.TextField(blank=True)
