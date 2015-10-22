@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.utils.encoding import force_unicode
-from django.template import loader, Context, RequestContext
+from django.template import loader
 from django.core.mail import send_mail as core_send_mail
 
 from .models import Message
@@ -87,5 +87,4 @@ def render_message(template, data=None, request=None):
     if 'site' not in data:
         data['site'] = Site.objects.get_current()
     
-    context = RequestContext(request, data) if request else Context(data)
-    return loader.get_template(template).render(context)
+    return loader.render_to_string(template, data, request=request)
