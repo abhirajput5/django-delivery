@@ -10,13 +10,13 @@ from django.core.mail import send_mail as core_send_mail
 
 from .models import Message
 
-NICE_EMAIL_FMT = '"%s" <%s>'
+NICE_EMAIL_FMT = '"{}" <{}>'
 
 recipient_string_splitter = re.compile(r'[\s,;:]+', re.M).split
 
 #-------------------------------------------------------------------------------
 def nice_email(email, name=''):
-    return NICE_EMAIL_FMT % (name, email) if name else email
+    return NICE_EMAIL_FMT.format(name, email) if name else email
 
 
 TO_MANAGERS = [nice_email(em, name) for name, em in settings.MANAGERS]
@@ -62,36 +62,20 @@ def send_mail(
 
 #-------------------------------------------------------------------------------
 def mail_admins(subject, message, html=''):
-    send_mail(
-        subject=settings.EMAIL_SUBJECT_PREFIX + force_unicode(subject),
-        message=message,
-        from_email=settings.SERVER_EMAIL,
-        recipient_list=TO_ADMINS,
-        html=html,
-    )
+    subject = settings.EMAIL_SUBJECT_PREFIX + force_unicode(subject)
+    send_mail(subject, message, recipient_list=TO_ADMINS, html=html)
 
 
 #-------------------------------------------------------------------------------
 def mail_managers(subject, message, html=''):
-    send_mail(
-        subject=settings.EMAIL_SUBJECT_PREFIX + force_unicode(subject),
-        message=message,
-        from_email=settings.SERVER_EMAIL,
-        recipient_list=TO_MANAGERS,
-        html=html,
-    )
+    subject = settings.EMAIL_SUBJECT_PREFIX + force_unicode(subject)
+    send_mail(subject, message, recipient_list=TO_MANAGERS, html=html)
 
 
 #-------------------------------------------------------------------------------
 def mail_user(user, subject, message, html='', fail_silently=False):
     addr = [nice_user_email(user)]
-    return send_mail(
-        subject=subject, 
-        message=message, 
-        from_email=settings.DEFAULT_FROM_EMAIL, 
-        recipient_list=addr,
-        html=html
-    )
+    return send_mail(subject, message, recipient_list=addr, html=html)
 
 
 #-------------------------------------------------------------------------------

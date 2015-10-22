@@ -9,10 +9,12 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 import lockfile
 
 logger = logging.getLogger('django_delivery')
-delivery_settings = getattr(settings, 'DJANGO_DELIVERY', {
+
+delivery_settings = dict({
     'is_active': True,
     'lock_wait_timeout': -1,
-})
+    'reply_to': True,
+}, **getattr(settings, 'DJANGO_DELIVERY', {}))
 
 
 #===============================================================================
@@ -93,12 +95,20 @@ class Message(MessageBase):
     def send(self):
         alt = bool(self.html)
         MessageClass = EmailMultiAlternatives if alt else EmailMessage
+        reply_to = delivery_settings.get('reply_to')
+        if reply_to:
+            if reply_to is True:
+                reply_to = self.from_address
+            headers = {'Reply-To': reply_to}
+        else:
+            headers = {}
+            
         em = MessageClass(
             self.subject,
             self.text,
             self.from_address,
             [self.to_address],
-            headers={'Reply-To': self.from_address}
+            headers=headers
         )
         
         if alt:
@@ -108,7 +118,7 @@ class Message(MessageBase):
         
     #---------------------------------------------------------------------------
     def __unicode__(self):
-        return 'Message %d: "%s" to %s' % (self.id, self.subject, self.to_address)
+        return 'Message {}: "{}" to {}'.format(self.id, self.subject, self.to_address)
 
 
 #===============================================================================
