@@ -14,6 +14,7 @@ delivery_settings = dict({
     'is_active': True,
     'lock_wait_timeout': -1,
     'reply_to': True,
+    'show_message_admin': True,
 }, **getattr(settings, 'DJANGO_DELIVERY', {}))
 
 
