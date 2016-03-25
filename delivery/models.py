@@ -6,6 +6,7 @@ from datetime import datetime
 from django.db import models
 from django.conf import settings
 from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.utils.encoding import python_2_unicode_compatible
 import lockfile
 
 logger = logging.getLogger('django_delivery')
@@ -66,7 +67,7 @@ class MessageManager(models.Manager):
                     logger.info('Sending message {}'.format(msg))
                     message.send()
                 except(socket.error, smtplib.SMTPException) as err:
-                    logger.info('Message {} failure: {}'.format(msg, err))
+                    logger.error('Message {} failure: {}'.format(msg, err))
                     MessageLog.objects.log(message, False, unicode(err))
                     errors += 1
                 else:
@@ -88,6 +89,7 @@ class MessageManager(models.Manager):
 
     
 #===============================================================================
+@python_2_unicode_compatible
 class Message(MessageBase):
     
     objects = MessageManager()
@@ -118,7 +120,7 @@ class Message(MessageBase):
         return em.send()
         
     #---------------------------------------------------------------------------
-    def __unicode__(self):
+    def __str__(self):
         return 'Message {}: "{}" to {}'.format(self.id, self.subject, self.to_address)
 
 

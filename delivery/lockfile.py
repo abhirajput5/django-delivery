@@ -296,16 +296,13 @@ class MkdirFileLock(LockBase):
         >>> lock = MkdirFileLock('somefile', threaded=False)
         """
         LockBase.__init__(self, path, threaded)
-        if threaded:
-            tname = "%x-" % thread.get_ident()
-        else:
-            tname = ""
-        # Lock file itself is a directory.  Place the unique file name into
-        # it.
-        self.unique_name  = os.path.join(self.lock_file,
-                                         "%s.%s%s" % (self.hostname,
-                                                      tname,
-                                                      self.pid))
+        
+        tname = "%x-" % thread.get_ident() if threaded else ""
+        # Lock file itself is a directory.  Place the unique file name into it.
+        self.unique_name  = os.path.join(
+            self.lock_file,
+            "%s.%s%s" % (self.hostname, tname, self.pid)
+        )
 
     def acquire(self, timeout=None):
         end_time = time.time()

@@ -2,6 +2,7 @@ import re
 import time
 
 from django.conf import settings
+from django.utils import six
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.utils.encoding import force_unicode
@@ -31,7 +32,7 @@ def nice_user_email(u):
 #-------------------------------------------------------------------------------
 def normalize_recipients(recipients):
     recipients = recipients or TO_ADMINS
-    if isinstance(recipients, basestring):
+    if isinstance(recipients, six.string_types):
         return [s.strip() for s in recipient_string_splitter(recipients)]
 
     return [
