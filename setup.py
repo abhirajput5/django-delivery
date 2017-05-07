@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 import os, sys
-
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -30,8 +26,7 @@ setup(
         'Framework :: Django',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
     ),
-    packages=['delivery', 'delivery.management', 'delivery.management.commands'],
-    install_requires=['django<2.0']
+    packages=find_packages(),
 )

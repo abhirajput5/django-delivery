@@ -3,7 +3,7 @@ from django.utils.safestring import mark_safe
 from .models import (Message, MessageLog, delivery_settings)
 
 
-#===============================================================================
+
 class MessageAdmin(admin.ModelAdmin):
     list_display = ( 
         'id',
@@ -40,16 +40,13 @@ class MessageAdmin(admin.ModelAdmin):
         }),
     )
     
-    #---------------------------------------------------------------------------
     def pre_field(self, text):
         return mark_safe('\n<pre>{}</pre>'.format(text))
         
-    #---------------------------------------------------------------------------
     def text_content(self, instance):
         return self.pre_field(instance.text)
 
 
-#===============================================================================
 class MessageLogAdmin(MessageAdmin):
     list_display = MessageAdmin.list_display + (
         'attempted',
@@ -70,11 +67,11 @@ class MessageLogAdmin(MessageAdmin):
         'log_message_content',
     )
 
-    #---------------------------------------------------------------------------
     def log_message_content(self, instance):
         return self.pre_field(instance.log_message)
 
 
 if delivery_settings.get('show_message_admin'):
     admin.site.register(Message, MessageAdmin)
+    
 admin.site.register(MessageLog, MessageLogAdmin)
