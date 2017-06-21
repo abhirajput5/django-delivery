@@ -5,7 +5,10 @@ import socket
 from datetime import datetime
 from django.db import models
 from django.conf import settings
-from anymail.message import AnymailMessage
+try:
+    from anymail.message import AnymailMessage
+except ImportError:
+    AnymailMessage = False
 
 logger = logging.getLogger('django_delivery')
 
@@ -32,9 +35,9 @@ class Message(MessageBase):
     
     def send(self):
         headers = {}
-        reply_to = delivery_settings.get('reply_to')
+        reply_to = delivery_settings.get('reply_to', False)
         if reply_to:
-            headers['Reply-To'] = self.from_address if reply_to is True else reply_to
+            headers['Reply-To'] = self.from_address
 
         message = AnymailMessage(
             subject=self.subject,
@@ -50,14 +53,16 @@ class Message(MessageBase):
         message.send()
 
         status = message.anymail_status
+        results = status.status
         recipient = status.recipients.get(self.from_address, None)
+        msg_bits = ','.join(results) if results else 'STATUS UNKNOWN'
         log_message = '{}: {} | {}'.format(
             status.message_id or 'NO_ID',
             recipient.status.upper() if recipient else 'UNKNOWN',
-            ','.join(status.status)
+            msg_bits
         )
 
-        is_success = status.status.issubset({'queued', 'sent'})
+        is_success = results.issubset({'queued', 'sent'}) if results else False
         MessageLog.objects.log(
             self,
             is_success,
