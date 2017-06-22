@@ -50,19 +50,24 @@ class Message(MessageBase):
         if self.html:
             message.attach_alternative(self.html, "text/html")
             
-        message.send()
+        sent = message.send()
+        if settings.EMAIL_BACKEND.startswith('anymail'):
+            status = message.anymail_status
+            results = status.status
+            recipient = status.recipients.get(self.from_address, None)
+            msg_bits = ','.join(results) if results else 'STATUS UNKNOWN'
+            log_message = '{}: {} | {}'.format(
+                status.message_id or 'NO_ID',
+                recipient.status.upper() if recipient else 'UNKNOWN',
+                msg_bits
+            )
 
-        status = message.anymail_status
-        results = status.status
-        recipient = status.recipients.get(self.from_address, None)
-        msg_bits = ','.join(results) if results else 'STATUS UNKNOWN'
-        log_message = '{}: {} | {}'.format(
-            status.message_id or 'NO_ID',
-            recipient.status.upper() if recipient else 'UNKNOWN',
-            msg_bits
-        )
+            is_success = results.issubset({'queued', 'sent'}) if results else False
+        else:
+            log_message = 'Sent by {}'.format(settings.EMAIL_BACKEND)
+            
+            is_success = bool(sent)
 
-        is_success = results.issubset({'queued', 'sent'}) if results else False
         MessageLog.objects.log(
             self,
             is_success,
