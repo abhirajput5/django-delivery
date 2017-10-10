@@ -6,9 +6,10 @@ from datetime import datetime
 from django.db import models
 from django.conf import settings
 try:
-    from anymail.message import AnymailMessage
+    from anymail.message import AnymailMessage as EmailMessage
 except ImportError:
-    AnymailMessage = False
+    from django.core.mail.message import EmailMessage
+    
 
 logger = logging.getLogger('django_delivery')
 
@@ -39,7 +40,7 @@ class Message(MessageBase):
         if reply_to:
             headers['Reply-To'] = self.from_address
 
-        message = AnymailMessage(
+        message = EmailMessage(
             subject=self.subject,
             body=self.text,
             from_email=self.from_address,
