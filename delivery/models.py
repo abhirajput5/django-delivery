@@ -8,8 +8,8 @@ from django.conf import settings
 try:
     from anymail.message import AnymailMessage as EmailMessage
 except ImportError:
-    from django.core.mail.message import EmailMessage
-    
+    from django.core.mail.message import EmailMultiAlternatives as EmailMessage
+
 
 logger = logging.getLogger('django_delivery')
 
@@ -33,7 +33,7 @@ class MessageBase(models.Model):
 
 
 class Message(MessageBase):
-    
+
     def send(self):
         headers = {}
         reply_to = delivery_settings.get('reply_to', False)
@@ -50,7 +50,7 @@ class Message(MessageBase):
 
         if self.html:
             message.attach_alternative(self.html, "text/html")
-            
+
         sent = message.send()
         if settings.EMAIL_BACKEND.startswith('anymail'):
             status = message.anymail_status
@@ -66,18 +66,14 @@ class Message(MessageBase):
             is_success = results.issubset({'queued', 'sent'}) if results else False
         else:
             log_message = 'Sent by {}'.format(settings.EMAIL_BACKEND)
-            
+
             is_success = bool(sent)
 
-        MessageLog.objects.log(
-            self,
-            is_success,
-            log_message
-        )
+        MessageLog.objects.log(self, is_success, log_message)
 
         if is_success:
             self.delete()
-            
+
         return is_success
 
     def __str__(self):
@@ -85,13 +81,13 @@ class Message(MessageBase):
 
 
 class MessageLogManager(models.Manager):
-    
+
     def log(self, message, is_success=True, log_message=''):
         """
         create a log entry for an attempt to send the given message and
         record the given result and (optionally) a log message
         """
-        
+
         return self.create(
             to_address=message.to_address,
             from_address=message.from_address,
